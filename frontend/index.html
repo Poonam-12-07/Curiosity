@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liana's Kindergarten Fun!</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="weather-display" id="weather-display">Loading weather... 🌤️</div>
+        <div class="header-container">
+            <h1>Liana's Kindergarten Fun! ⭐</h1>
+        </div>
+
+        <div class="header-info">
+            <div class="input-group">
+                <label for="studentName">My Name</label>
+                <input type="text" id="studentName" placeholder="Type name here...">
+            </div>
+            <div class="input-group">
+                <label for="homeworkDate">Date</label>
+                <input type="date" id="homeworkDate">
+            </div>
+            <div class="input-group" id="day-selector-group" style="display:none;">
+                <label for="daySelect">Select Day</label>
+                <select id="daySelect"></select>
+            </div>
+        </div>
+
+        <div class="homework-sections" id="homework-sections">
+            <div style="text-align: center; padding: 20px;">Loading your fun activities... ✨</div>
+        </div>
+
+        <div class="game-button-container">
+            <button id="gameButton" disabled>Diagonal Game! 🎮</button>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <span>Weather Pal 🌤️</span>
+                <span style="cursor: pointer;" onclick="toggleChat()">✕</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">Hi there! Ask me about the weather anywhere! 🌍</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type a city..."
+                    onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="chat-send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <button class="chat-button" onclick="toggleChat()" id="chatBtn">💬</button>
+    </div>
+
+    <script>
+        let currentDayData = null;
+
+        function toggleCheck(id) {
+            const checkbox = document.getElementById(id);
+            if (!checkbox) return;
+            checkbox.classList.toggle('checked');
+
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.add('pop-anim');
+                setTimeout(() => checkbox.classList.remove('pop-anim'), 400);
+            }
+
+            checkCompletion();
+
+            // If it's a task, attempt to sync with backend
+            if (id.startsWith('check-task-')) {
+                const taskId = id.replace('check-task-', '');
+                fetch(`/tasks/${taskId}/toggle`, { method: 'POST' })
+                    .catch(err => console.error("Sync failed:", err));
+            }
+        }
+
+        function checkCompletion() {
+            const totalCheckboxes = document.querySelectorAll('.checkbox-circle').length;
+            const checkedCheckboxes = document.querySelectorAll('.checkbox-circle.checked').length;
+            const gameButton = document.getElementById('gameButton');
+
+            if (totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes) {
+                gameButton.disabled = false;
+                gameButton.classList.add('enabled');
+            } else {
+                gameButton.disabled = true;
+                gameButton.classList.remove('enabled');
+            }
+        }
+
+        document.getElementById('homeworkDate').valueAsDate = new Date();
+
+        // Fetch all days and populate selector
+        async function initApp() {
+            try {
+                const response = await fetch('/days');
+                const days = await response.json();
+
+                if (days.length > 0) {
+                    const selectorGroup = document.getElementById('day-selector-group');
+                    const select = document.getElementById('daySelect');
+
+                    if (days.length > 1) {
+                        selectorGroup.style.display = 'block';
+                        days.forEach(day => {
+                            const opt = document.createElement('option');
+                            opt.value = day.name;
+                            opt.innerText = day.name;
+                            select.appendChild(opt);
+                        });
+                        select.onchange = (e) => loadDay(e.target.value);
+                    }
+
+                    loadDay(days[0].name);
+                }
+            } catch (err) {
+                console.error("Failed to init app:", err);
+                document.getElementById('homework-sections').innerHTML = "Failed to load homework. 😢";
+            }
+        }
+
+        async function loadDay(dayName) {
+            try {
+                const response = await fetch(`/days/${dayName}`);
+                const day = await response.json();
+                currentDayData = day;
+                renderDay(day);
+            } catch (err) {
+                console.error("Failed to load day:", err);
+            }
+        }
+
+        function renderDay(day) {
+            const container = document.getElementById('homework-sections');
+            container.innerHTML = '';
+
+            // Math Problems
+            day.math_problems.forEach((prob) => {
+                const card = document.createElement('div');
+                card.className = 'section-card';
+                card.innerHTML = `
+                    <div class="section-content">
+                        <div class="section-title">Math Fun</div>
+                        <div class="math-row">
+                            <span>${prob.question} =</span>
+                            <input type="text" class="math-input" placeholder="?" id="math-input-${prob.id}" oninput="validateMath(${prob.id}, '${prob.answer}')">
+                            <span>🧮</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-circle" id="check-math-${prob.id}"></div>
+                `;
+                container.appendChild(card);
+            });
+
+            // English Exercises
+            day.english_exercises.forEach((ex) => {
+                const card = document.createElement('div');
+                card.className = 'section-card';
+                card.innerHTML = `
+                    <div class="section-content">
+                        <div class="section-title">Sentence Writing</div>
+                        <div class="sentence-input-container">
+                            <span class="sentence-label">Type "${ex.sentence}" below:</span>
+                            <input type="text" class="sentence-input" placeholder="Type here..." id="sent-input-${ex.id}" oninput="validateSentence(${ex.id}, \`${ex.sentence.replace(/'/g, "\\'")}\`)">
+                            <span>✍️</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-circle" id="check-sent-${ex.id}"></div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Sight Words (Tasks)
+            if (day.tasks && day.tasks.length > 0) {
+                const card = document.createElement('div');
+                card.className = 'section-card';
+                card.innerHTML = `
+                    <div class="section-content">
+                        <div class="section-title">Sight Words</div>
+                        <div class="sight-words">
+                            ${day.tasks.map(task => `<span class="sight-word-tag">${task.description}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="checkbox-circle ${day.tasks.every(t => t.is_completed) ? 'checked' : ''}" id="check-sight-all" onclick="toggleCheck('check-sight-all')"></div>
+                `;
+                container.appendChild(card);
+            }
+
+            checkCompletion();
+        }
+
+        function validateMath(id, answer) {
+            const input = document.getElementById(`math-input-${id}`);
+            const checkbox = document.getElementById(`check-math-${id}`);
+            const val = input.value.trim();
+
+            if (val === "") {
+                checkbox.classList.remove('checked', 'wrong');
+                input.style.borderColor = 'var(--accent-purple)';
+                return;
+            }
+
+            if (val === answer) {
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('wrong');
+                input.style.borderColor = 'var(--green-signal)';
+            } else {
+                checkbox.classList.add('wrong');
+                checkbox.classList.remove('checked');
+                input.style.borderColor = '#FF6B6B';
+            }
+            checkCompletion();
+        }
+
+        function validateSentence(id, target) {
+            const input = document.getElementById(`sent-input-${id}`);
+            const checkbox = document.getElementById(`check-sent-${id}`);
+            const val = input.value.trim();
+
+            if (val === "") {
+                checkbox.classList.remove('checked', 'wrong');
+                input.style.borderColor = 'var(--accent-purple)';
+                return;
+            }
+
+            if (val.toLowerCase() === target.trim().toLowerCase()) {
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('wrong');
+                input.style.borderColor = 'var(--green-signal)';
+            } else {
+                checkbox.classList.add('wrong');
+                checkbox.classList.remove('checked');
+                input.style.borderColor = '#FF6B6B';
+            }
+            checkCompletion();
+        }
+
+        async function fetchWeather() {
+            try {
+                const response = await fetch('/weather');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('weather-display').innerHTML =
+                        `${data.city}: ${data.temp}°C ${getWeatherEmoji(data.description)}`;
+                } else {
+                    document.getElementById('weather-display').innerHTML = "Weather not available ☁️";
+                }
+            } catch (error) {
+                console.error("Error fetching weather:", error);
+                document.getElementById('weather-display').innerHTML = "Weather not available ☁️";
+            }
+        }
+
+        function getWeatherEmoji(desc) {
+            desc = desc.toLowerCase();
+            if (desc.includes('sun') || desc.includes('clear')) return '☀️';
+            if (desc.includes('cloud')) return '☁️';
+            if (desc.includes('rain')) return '🌧️';
+            if (desc.includes('snow')) return '❄️';
+            return '🌤️';
+        }
+
+        fetchWeather();
+        initApp();
+
+        function toggleChat() {
+            const window = document.getElementById('chatWindow');
+            const btn = document.getElementById('chatBtn');
+            if (window.style.display === 'flex') {
+                window.style.display = 'none';
+                btn.innerHTML = '💬';
+            } else {
+                window.style.display = 'flex';
+                btn.innerHTML = '✕';
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            const loadingId = 'loading-' + Date.now();
+            addMessage('Thinking... 🤔', 'bot', loadingId);
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.remove();
+                addMessage(data.reply, 'bot');
+            } catch (error) {
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.innerText = "Oops! I couldn't connect to my weather brain. 🧠❌";
+            }
+        }
+
+        function addMessage(text, sender, id = null) {
+            const messages = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            if (id) div.id = id;
+            div.innerText = text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

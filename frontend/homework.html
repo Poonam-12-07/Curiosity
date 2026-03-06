@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindergarten Homework Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fff5f8;
+            --primary-pink: #ff85a1;
+            --secondary-pink: #fbb1bd;
+            --accent-blue: #a2d2ff;
+            --accent-purple: #c8b6ff;
+            --text-color: #4a4a4a;
+            --green-signal: #7ae582;
+            --white: #ffffff;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--secondary-pink);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '✿';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 100px;
+            color: var(--secondary-pink);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-pink);
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-pink);
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--secondary-pink);
+            border-radius: 15px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+            background: white;
+        }
+
+        input:focus {
+            border-color: var(--primary-pink);
+        }
+
+        .homework-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(255, 133, 161, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-content {
+            flex: 1;
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .section-value {
+            font-size: 1.4rem;
+            color: var(--text-color);
+        }
+
+        .sight-words {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .sight-word-tag {
+            background: var(--accent-purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .checkbox-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid var(--secondary-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .checkbox-circle.checked {
+            background-color: var(--green-signal);
+            border-color: var(--green-signal);
+            box-shadow: 0 0 15px rgba(122, 229, 130, 0.5);
+        }
+
+        .checkbox-circle::after {
+            content: '✓';
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .checkbox-circle.checked::after {
+            opacity: 1;
+        }
+
+        .game-button-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        #gameButton {
+            background-color: #ccc;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.4rem;
+            font-family: 'Fredoka', sans-serif;
+            border-radius: 50px;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 0px #bbb;
+            position: relative;
+            top: 0;
+        }
+
+        #gameButton.enabled {
+            background-color: var(--accent-blue);
+            cursor: pointer;
+            box-shadow: 0 5px 0px #7ab6e6;
+        }
+
+        #gameButton.enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0px #7ab6e6;
+        }
+
+        #gameButton.enabled:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #7ab6e6;
+        }
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .pop-anim {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Homework Fun!</h1>
+
+    <div class="header-info">
+        <div class="input-group">
+            <label for="studentName">My Name</label>
+            <input type="text" id="studentName" placeholder="Type your name here...">
+        </div>
+        <div class="input-group">
+            <label for="homeworkDate">Date</label>
+            <input type="date" id="homeworkDate">
+        </div>
+    </div>
+
+    <div class="homework-sections">
+        <!-- Math Section -->
+        <div class="section-card">
+            <div class="section-content">
+                <div class="section-title">Math One</div>
+                <div class="section-value">1 + 1 = 2 🍎</div>
+            </div>
+            <div class="checkbox-circle" id="check-math" onclick="toggleCheck('check-math')"></div>
+        </div>
+
+        <!-- Sentence Section -->
+        <div class="section-card">
+            <div class="section-content">
+                <div class="section-title">Sentence One</div>
+                <div class="section-value">The cat sat on the mat. 🐱</div>
+            </div>
+            <div class="checkbox-circle" id="check-sentence" onclick="toggleCheck('check-sentence')"></div>
+        </div>
+
+        <!-- Sight Word Section -->
+        <div class="section-card">
+            <div class="section-content">
+                <div class="section-title">Sight Words</div>
+                <div class="sight-words">
+                    <span class="sight-word-tag">the</span>
+                    <span class="sight-word-tag">and</span>
+                    <span class="sight-word-tag">for</span>
+                    <span class="sight-word-tag">you</span>
+                    <span class="sight-word-tag">is</span>
+                </div>
+            </div>
+            <div class="checkbox-circle" id="check-sight" onclick="toggleCheck('check-sight')"></div>
+        </div>
+    </div>
+
+    <div class="game-button-container">
+        <button id="gameButton" disabled>Diagonal Game! 🎮</button>
+    </div>
+</div>
+
+<script>
+    function toggleCheck(id) {
+        const checkbox = document.getElementById(id);
+        checkbox.classList.toggle('checked');
+        
+        if (checkbox.classList.contains('checked')) {
+            checkbox.classList.add('pop-anim');
+            setTimeout(() => checkbox.classList.remove('pop-anim'), 400);
+        }
+
+        checkCompletion();
+    }
+
+    function checkCompletion() {
+        const mathDone = document.getElementById('check-math').classList.contains('checked');
+        const sentenceDone = document.getElementById('check-sentence').classList.contains('checked');
+        const sightDone = document.getElementById('check-sight').classList.contains('checked');
+        
+        const gameButton = document.getElementById('gameButton');
+        
+        if (mathDone && sentenceDone && sightDone) {
+            gameButton.disabled = false;
+            gameButton.classList.add('enabled');
+        } else {
+            gameButton.disabled = true;
+            gameButton.classList.remove('enabled');
+        }
+    }
+
+    // Set today's date as default
+    document.getElementById('homeworkDate').valueAsDate = new Date();
+</script>
+
+</body>
+</html>
