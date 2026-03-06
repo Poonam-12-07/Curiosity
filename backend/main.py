@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
-import models, schemas, crud
-from database import SessionLocal, engine
-import weather_report
-import weather_agent
+from . import models, schemas, crud
+from .database import SessionLocal, engine
+from . import weather_report
+from . import weather_agent
 
 models.Base.metadata.create_all(bind=engine)
 

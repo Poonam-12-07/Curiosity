@@ -1,7 +1,7 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0\.."
 echo Seeding Database for Liana-KT...
-"c:\Users\poona\AppData\Local\Programs\Python\Python313\python.exe" seed.py
+"c:\Users\poona\AppData\Local\Programs\Python\Python313\python.exe" -m backend.seed
 if %errorlevel% neq 0 (
     echo Seeding Failed!
 ) else (
