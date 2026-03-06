@@ -1,0 +1,29 @@
+{
+    "version": 2,
+    "rewrites": [
+        {
+            "source": "/days",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/days/(.*)",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/tasks/(.*)",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/weather",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/chat",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/frontend/$1"
+        }
+    ]
+}
