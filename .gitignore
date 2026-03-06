@@ -9,7 +9,8 @@ venv/
 .env
 
 # Database
-*.db
+# Database file included for deployment
+# *.db
 
 # OS
 .DS_Store

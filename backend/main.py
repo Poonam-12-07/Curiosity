@@ -8,7 +8,11 @@ from .database import SessionLocal, engine
 from . import weather_report
 from . import weather_agent
 
-models.Base.metadata.create_all(bind=engine)
+# Create database tables if they don't exist
+try:
+    models.Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Note: Could not run create_all (expected on Vercel): {e}")
 
 app = FastAPI()
 
