@@ -312,6 +312,19 @@
     <p class="win-msg" id="winMsg">You matched all the shapes!</p>
 
     <script>
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        const scoopsContainer = document.querySelector('.scoops-side');
+        const scoopItems = scoopsContainer.querySelectorAll('.scoop-item');
+        shuffleArray(scoopItems).forEach((el) => scoopsContainer.appendChild(el));
+
         const dropZones = document.querySelectorAll('.drop-zone');
         const scoops = document.querySelectorAll('.scoop');
         const winMsg = document.getElementById('winMsg');
