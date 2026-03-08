@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Cream Shape Matching</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #a8e6cf;
+            font-family: "Segoe UI", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .title-banner {
+            background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .title-banner h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .title-banner .sub {
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 3rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cones-side,
+        .scoops-side {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            align-items: center;
+        }
+
+        .cones-side h2,
+        .scoops-side h2 {
+            font-size: 1rem;
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+        /* Cone: inverted triangle; sits directly under the scoop */
+        .cone {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-top: 70px solid #d4a574;
+            margin-top: -2px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+
+        /* Drop zone: scoop base aligns with cone’s top edge so it sits on the cone */
+        .drop-zone {
+            width: 56px;
+            height: 56px;
+            border: 3px dashed rgba(0, 0, 0, 0.35);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .drop-zone.matched {
+            border-style: solid;
+            border-color: transparent;
+            background: transparent;
+        }
+
+        /* Target shape outlines (dotted) inside drop zone */
+        .target-shape {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .target-shape.circle {
+            width: 44px;
+            height: 44px;
+            border: 3px dashed #666;
+            border-radius: 50%;
+        }
+
+        .target-shape.square {
+            width: 40px;
+            height: 40px;
+            border: 3px dashed #666;
+        }
+
+        .target-shape.triangle svg {
+            width: 44px;
+            height: 44px;
+        }
+
+        .target-shape svg {
+            width: 44px;
+            height: 44px;
+        }
+
+        /* One cone + drop zone wrapper; scoop sits on the cone’s top edge */
+        .cone-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Draggable scoop */
+        .scoop {
+            width: 56px;
+            height: 56px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s;
+            border-radius: 50%;
+        }
+
+        .scoop:active {
+            cursor: grabbing;
+        }
+
+        .scoop.dragging {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .scoop.used {
+            cursor: default;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .scoop-shape {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .scoop-shape.circle {
+            border-radius: 50%;
+            background: #9c27b0;
+        }
+
+        .scoop-shape.square {
+            background: #ff9800;
+        }
+
+        .scoop-shape.triangle {
+            width: 0;
+            height: 0;
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-bottom: 38px solid #4caf50;
+        }
+
+        .scoop-shape.heart svg,
+        .scoop-shape.star svg {
+            width: 44px;
+            height: 44px;
+        }
+
+        .scoop-item {
+            margin: 0;
+        }
+
+        .win-msg {
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: #4caf50;
+            color: white;
+            border-radius: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .win-msg.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title-banner">
+        <h1>Ice Cream Shape Matching</h1>
+        <span class="sub">Drag the scoops to the matching cones!</span>
+    </div>
+
+    <div class="game-area">
+        <div class="cones-side">
+            <h2>Cones – drop here</h2>
+            <div class="cone-item" data-shape="circle">
+                <div class="drop-zone" data-shape="circle" id="zone-circle">
+                    <div class="target-shape circle"></div>
+                </div>
+                <div class="cone"></div>
+            </div>
+            <div class="cone-item" data-shape="square">
+                <div class="drop-zone" data-shape="square" id="zone-square">
+                    <div class="target-shape square"></div>
+                </div>
+                <div class="cone"></div>
+            </div>
+            <div class="cone-item" data-shape="triangle">
+                <div class="drop-zone" data-shape="triangle" id="zone-triangle">
+                    <div class="target-shape triangle">
+                        <svg viewBox="0 0 44 38" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="4"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2 L42 38 L2 38 Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="cone"></div>
+            </div>
+            <div class="cone-item" data-shape="heart">
+                <div class="drop-zone" data-shape="heart" id="zone-heart">
+                    <div class="target-shape">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="4"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="cone"></div>
+            </div>
+            <div class="cone-item" data-shape="star">
+                <div class="drop-zone" data-shape="star" id="zone-star">
+                    <div class="target-shape">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="4"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="cone"></div>
+            </div>
+        </div>
+
+        <div class="scoops-side">
+            <h2>Drag these scoops</h2>
+            <div class="scoop-item">
+                <div class="scoop" draggable="true" data-shape="circle" id="scoop-circle">
+                    <div class="scoop-shape circle"></div>
+                </div>
+            </div>
+            <div class="scoop-item">
+                <div class="scoop" draggable="true" data-shape="square" id="scoop-square">
+                    <div class="scoop-shape square"></div>
+                </div>
+            </div>
+            <div class="scoop-item">
+                <div class="scoop" draggable="true" data-shape="triangle" id="scoop-triangle">
+                    <div class="scoop-shape triangle"></div>
+                </div>
+            </div>
+            <div class="scoop-item">
+                <div class="scoop" draggable="true" data-shape="heart" id="scoop-heart">
+                    <div class="scoop-shape heart">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#f44336">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="scoop-item">
+                <div class="scoop" draggable="true" data-shape="star" id="scoop-star">
+                    <div class="scoop-shape star">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#ffc107">
+                            <path
+                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="win-msg" id="winMsg">You matched all the shapes!</p>
+
+    <script>
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const scoops = document.querySelectorAll('.scoop');
+        const winMsg = document.getElementById('winMsg');
+
+        let draggedScoop = null;
+
+        scoops.forEach(scoop => {
+            scoop.addEventListener('dragstart', (e) => {
+                if (scoop.classList.contains('used')) { e.preventDefault(); return; }
+                draggedScoop = scoop;
+                e.dataTransfer.setData('text/plain', scoop.dataset.shape);
+                e.dataTransfer.effectAllowed = 'move';
+                scoop.classList.add('dragging');
+            });
+            scoop.addEventListener('dragend', () => {
+                scoop.classList.remove('dragging');
+                draggedScoop = null;
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const shape = e.dataTransfer.getData('text/plain');
+                if (zone.dataset.shape !== shape || !draggedScoop) return;
+                zone.classList.add('matched');
+                zone.innerHTML = draggedScoop.innerHTML;
+                draggedScoop.classList.add('used');
+                draggedScoop.innerHTML = '';
+                checkWin();
+            });
+        });
+
+        function checkWin() {
+            const matched = document.querySelectorAll('.drop-zone.matched').length;
+            if (matched === 5) winMsg.classList.add('show');
+        }
+    </script>
+</body>
+
+</html>

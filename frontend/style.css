@@ -75,6 +75,37 @@ h1 {
     font-weight: 600;
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-link-btn {
+    background: linear-gradient(135deg, #ff8fa3 0%, #ffafcc 100%);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(255, 143, 163, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.game-link-btn:hover {
+    transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 6px 20px rgba(255, 143, 163, 0.5);
+}
+
 .header-info {
     display: flex;
     justify-content: space-between;
