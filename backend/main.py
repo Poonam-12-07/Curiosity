@@ -4,16 +4,18 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import os
 from . import weather_report
-from . import weather_agent
+from . import fun_chat_agent
 from .data import DAYS_DATA
 
 app = FastAPI()
+
+fun_agent = fun_chat_agent.FunChatAgent()
 
 # Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -40,10 +42,10 @@ def read_weather():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/chat")
-def chat_with_agent(chat_msg: ChatMessage):
+@app.post("/fun-chat")
+async def fun_chat_with_agent(chat_msg: ChatMessage):
     try:
-        reply = weather_agent.chat(chat_msg.message)
+        reply, used_search = await fun_agent.chat(chat_msg.message)
         return {"reply": reply}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

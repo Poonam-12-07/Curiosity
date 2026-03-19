@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Gratitude Journal ⭐</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-paper: #fffdf7;
+            --primary-pink: #D95284;
+            --secondary-purple: #8E44AD;
+            --accent-blue: #a2d2ff;
+            --accent-yellow: #ffd60a;
+            --accent-orange: #ff9f1c;
+            --accent-green: #2ecc71;
+            --text-color: #4a235a;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a2d2ff 0%, #c8b6ff 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .journal-container {
+            background: var(--bg-paper);
+            padding: 50px;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            border: 10px solid white;
+            position: relative;
+        }
+
+        .journal-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .journal-header h1 {
+            font-size: 3.5rem;
+            color: var(--primary-pink);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0 white;
+        }
+
+        .journal-header .sub {
+            font-size: 1.8rem;
+            color: var(--accent-orange);
+            font-weight: 700;
+        }
+
+        .weekly-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .day-box {
+            background: white;
+            border: 3px solid #eee;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 150px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .day-box:hover {
+            transform: scale(1.02);
+            border-color: var(--accent-blue);
+        }
+
+        .day-label {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            padding: 5px 15px;
+            background: var(--accent-yellow);
+            border-radius: 10px;
+            font-weight: 800;
+            color: var(--text-color);
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 #e6c100;
+        }
+
+        .day-box:nth-child(2) .day-label { background: var(--secondary-purple); color: white; box-shadow: 0 4px 0 #732d91; }
+        .day-box:nth-child(3) .day-label { background: var(--accent-blue); color: white; box-shadow: 0 4px 0 #7bb6e6; }
+        .day-box:nth-child(4) .day-label { background: var(--primary-pink); color: white; box-shadow: 0 4px 0 #b04169; }
+        .day-box:nth-child(5) .day-label { background: var(--accent-green); color: white; box-shadow: 0 4px 0 #25a35a; }
+        .day-box:nth-child(6) .day-label { background: var(--accent-orange); color: white; box-shadow: 0 4px 0 #cc7f16; }
+        .day-box:nth-child(7) { grid-column: span 2; }
+        .day-box:nth-child(7) .day-label { background: #ff758c; color: white; box-shadow: 0 4px 0 #ff4d6d; }
+
+        .journal-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            background: transparent;
+            resize: none;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .decor {
+            position: absolute;
+            font-size: 2rem;
+            pointer-events: none;
+        }
+
+        .decor-1 { top: 20px; left: 20px; }
+        .decor-2 { top: 20px; right: 20px; }
+        .decor-3 { bottom: 20px; left: 20px; }
+        .decor-4 { bottom: 20px; right: 20px; }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            color: var(--primary-pink);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+    <div class="journal-container">
+        <div class="decor decor-1">🚀</div>
+        <div class="decor decor-2">🍦</div>
+        <div class="decor decor-3">🐶</div>
+        <div class="decor decor-4">🎈</div>
+
+        <div class="journal-header">
+            <div class="sub">I AM</div>
+            <h1>GRATEFUL</h1>
+            <div class="sub">FOR...</div>
+        </div>
+
+        <div class="weekly-grid">
+            <div class="day-box">
+                <div class="day-label">Monday</div>
+                <textarea class="journal-input" placeholder="What made you happy today?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Tuesday</div>
+                <textarea class="journal-input" placeholder="Who was nice to you?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Wednesday</div>
+                <textarea class="journal-input" placeholder="What did you learn?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Thursday</div>
+                <textarea class="journal-input" placeholder="What was your favorite food?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Friday</div>
+                <textarea class="journal-input" placeholder="What was your favorite game?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Saturday</div>
+                <textarea class="journal-input" placeholder="What did you do with your family?"></textarea>
+            </div>
+            <div class="day-box">
+                <div class="day-label">Sunday</div>
+                <textarea class="journal-input" placeholder="Share your favorite moment from the weekend!"></textarea>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
